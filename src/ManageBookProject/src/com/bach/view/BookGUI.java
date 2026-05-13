@@ -254,7 +254,7 @@ public class BookGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtBookCodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBookCodeActionPerformed
-        // TODO add your handling code here:
+       // TODO add your handling code here:
     }//GEN-LAST:event_txtBookCodeActionPerformed
 
     private void txtBookNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBookNameActionPerformed
@@ -309,7 +309,7 @@ public class BookGUI extends javax.swing.JFrame {
                 // Nếu không chọn dòng nào -> CREATE NEW
                 bookListModel.addElement(b);
             }
-            
+
             // QUAN TRỌNG: Gọi hàm này để Controller đẩy dữ liệu ngược lại Model của JList
             control.loadDataToModel(bookListModel);
             javax.swing.JOptionPane.showMessageDialog(this, "Lưu thông tin thành công!");
@@ -331,51 +331,36 @@ public class BookGUI extends javax.swing.JFrame {
 
     private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
         int index = listBooks.getSelectedIndex();
-    if (index >= 0) {
-        control.removeBook(index); // Xóa trong Controller
-        control.loadDataToModel(bookListModel); // Cập nhật lại JList
-        
-        // Hiển thị cuốn sách đầu tiên sau khi xóa
-        if (!bookListModel.isEmpty()) {
-            listBooks.setSelectedIndex(0);
+        if (index >= 0) {
+            control.removeBook(index); // Xóa trong Controller
+            control.loadDataToModel(bookListModel); // Cập nhật lại JList
+
+            // Hiển thị cuốn sách đầu tiên sau khi xóa
+            if (!bookListModel.isEmpty()) {
+                listBooks.setSelectedIndex(0);
+            } else {
+                btnNewActionPerformed(null); // Nếu xóa hết thì xóa trắng form
+            }
         } else {
-            btnNewActionPerformed(null); // Nếu xóa hết thì xóa trắng form
+            javax.swing.JOptionPane.showMessageDialog(this, "Chọn sách để xóa!");
         }
-    } else {
-        javax.swing.JOptionPane.showMessageDialog(this, "Chọn sách để xóa!");
-    }
     }//GEN-LAST:event_btnRemoveActionPerformed
 
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(BookGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(BookGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(BookGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(BookGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            // Thiết lập giao diện giống hệ điều hành đang dùng (Windows/MacOS)
+            javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-        //</editor-fold>
 
-        /* Create and display the form */
+        /* Hiển thị form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
+                // Khởi tạo và hiển thị
                 new BookGUI().setVisible(true);
             }
         });
