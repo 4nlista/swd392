@@ -254,7 +254,7 @@ public class BookGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtBookCodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBookCodeActionPerformed
-       // TODO add your handling code here:
+        // TODO add your handling code here:
     }//GEN-LAST:event_txtBookCodeActionPerformed
 
     private void txtBookNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBookNameActionPerformed
@@ -292,26 +292,43 @@ public class BookGUI extends javax.swing.JFrame {
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         try {
+
+            //1. khai báo để lấy dữ liệu 
             String code = txtBookCode.getText().trim();
             String name = txtBookName.getText().trim();
             String author = txtAuthor.getText().trim();
             String publisher = txtPublisher.getText().trim();
+
+            //2. Validate: không được để trống
+            if (code.isEmpty() || name.isEmpty() || author.isEmpty() || publisher.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Tất cả các trường không được để trống!");
+                return;
+            }
             int year = Integer.parseInt(cbxPublishYear.getSelectedItem().toString().trim());
             boolean forRent = checkForRent.isSelected();
-
             Book b = new Book(code, name, author, publisher, year, forRent);
+
             int index = listBooks.getSelectedIndex();
 
             if (index >= 0) {
-                // Nếu đang chọn một dòng -> UPDATE
+                // Trường hợp UPDATE
                 control.updateBook(index, b);
+                javax.swing.JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
             } else {
-                // Nếu không chọn dòng nào -> CREATE NEW
-                bookListModel.addElement(b);
+                // Trường hợp ADD NEW: Validate trùng mã
+                if (control.isCodeExisted(code)) {
+                    javax.swing.JOptionPane.showMessageDialog(this, "Mã sách (Book Code) đã tồn tại!");
+                    txtBookCode.requestFocus();
+                    return;
+                }
+                control.addBook(b);
+                javax.swing.JOptionPane.showMessageDialog(this, "Thêm mới thành công!");
             }
 
             // QUAN TRỌNG: Gọi hàm này để Controller đẩy dữ liệu ngược lại Model của JList
             control.loadDataToModel(bookListModel);
+            
+            
             javax.swing.JOptionPane.showMessageDialog(this, "Lưu thông tin thành công!");
         } catch (Exception e) {
             javax.swing.JOptionPane.showMessageDialog(this, "Vui lòng kiểm tra lại dữ liệu!");
