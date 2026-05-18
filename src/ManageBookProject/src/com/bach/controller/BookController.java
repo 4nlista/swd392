@@ -48,6 +48,15 @@ public class BookController {
         }
     }
     
+    public boolean isCodeExisted(String code) {
+        for (Book b : listBook) {
+            if (b.getCode().equalsIgnoreCase(code)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public ArrayList<Book> getList() {
         return listBook;
     }
