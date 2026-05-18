@@ -7,8 +7,8 @@ package com.bach.view;
 
 import com.bach.controller.BookController;
 import com.bach.model.Book;
+import com.bach.utils.ValidationUtils;
 import javax.swing.DefaultListModel;
-import javax.swing.ListModel;
 
 /**
  *
@@ -19,18 +19,28 @@ public class BookGUI extends javax.swing.JFrame {
     /**
      * Creates new form BookGUI
      */
-    DefaultListModel<Book> bookListModel = new DefaultListModel<>();
-    BookController control = new BookController();
+    private DefaultListModel<Book> bookListModel = new DefaultListModel<>();
+    private BookController controller;
 
+    /**
+     * Constructor mac dinh — giu de NetBeans Form Designer hoat dong.
+     */
     public BookGUI() {
+        this.controller = new BookController();
+        this.controller.getSampleData();
         initComponents();
-
-        // 2. Nạp dữ liệu vào model đã khai báo ở trên
-        bookListModel.addElement(new Book("DBI202", "Core Java 01", "Author A", "Publisher X", 2016, true));
-        bookListModel.addElement(new Book("PRO192", "C#. Net", "Author B", "Publisher Y", 2017, false));
-
-        // 3. Gán model vào JList
         listBooks.setModel(bookListModel);
+        refreshList();
+    }
+
+    /**
+     * Constructor chinh — nhan controller duoc tiem tu Main.java (Dependency Injection).
+     */
+    public BookGUI(BookController controller) {
+        this.controller = controller;
+        initComponents();
+        listBooks.setModel(bookListModel);
+        refreshList();
     }
 
     /**
@@ -275,113 +285,121 @@ public class BookGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_btnExitActionPerformed
 
     private void listBooksValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_listBooksValueChanged
-        // TODO add your handling code here:
-        if (!evt.getValueIsAdjusting()) { // Chỉ xử lý khi người dùng đã thả chuột
-            Book selected = listBooks.getSelectedValue();
-            if (selected != null) {
-                // Đổ dữ liệu vào các ô bên phải
-                txtBookCode.setText(selected.getCode());
-                txtBookName.setText(selected.getName());
-                txtAuthor.setText(selected.getAuthor());
-                txtPublisher.setText(selected.getPublisher());
-                cbxPublishYear.setSelectedItem(String.valueOf(selected.getYear()));
-                checkForRent.setSelected(selected.isForRent());
+        if (!evt.getValueIsAdjusting()) {
+            int index = listBooks.getSelectedIndex();
+            if (index >= 0) {
+                displayBook(controller.getBook(index));
             }
         }
     }//GEN-LAST:event_listBooksValueChanged
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        try {
+        // Buoc 1: Lay du lieu tho tu form
+        String code = txtBookCode.getText().trim();
+        String name = txtBookName.getText().trim();
+        String author = txtAuthor.getText().trim();
+        String publisher = txtPublisher.getText().trim();
+        String yearStr = cbxPublishYear.getSelectedItem().toString();
+        int selectedIndex = listBooks.getSelectedIndex();
 
-            //1. khai báo để lấy dữ liệu 
-            String code = txtBookCode.getText().trim();
-            String name = txtBookName.getText().trim();
-            String author = txtAuthor.getText().trim();
-            String publisher = txtPublisher.getText().trim();
-
-            //2. Validate: không được để trống
-            if (code.isEmpty() || name.isEmpty() || author.isEmpty() || publisher.isEmpty()) {
-                javax.swing.JOptionPane.showMessageDialog(this, "Tất cả các trường không được để trống!");
-                return;
-            }
-            int year = Integer.parseInt(cbxPublishYear.getSelectedItem().toString().trim());
-            boolean forRent = checkForRent.isSelected();
-            Book b = new Book(code, name, author, publisher, year, forRent);
-
-            int index = listBooks.getSelectedIndex();
-
-            if (index >= 0) {
-                // Trường hợp UPDATE
-                control.updateBook(index, b);
-                javax.swing.JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
-            } else {
-                // Trường hợp ADD NEW: Validate trùng mã
-                if (control.isCodeExisted(code)) {
-                    javax.swing.JOptionPane.showMessageDialog(this, "Mã sách (Book Code) đã tồn tại!");
-                    txtBookCode.requestFocus();
-                    return;
-                }
-                control.addBook(b);
-                javax.swing.JOptionPane.showMessageDialog(this, "Thêm mới thành công!");
-            }
-
-            // QUAN TRỌNG: Gọi hàm này để Controller đẩy dữ liệu ngược lại Model của JList
-            control.loadDataToModel(bookListModel);
-            
-            
-            javax.swing.JOptionPane.showMessageDialog(this, "Lưu thông tin thành công!");
-        } catch (Exception e) {
-            javax.swing.JOptionPane.showMessageDialog(this, "Vui lòng kiểm tra lại dữ liệu!");
+        // Buoc 2: Validate — khong duoc de trong
+        if (!ValidationUtils.isNotEmpty(code, name, author, publisher)) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Tat ca cac truong khong duoc de trong!");
+            return;
         }
+
+        // Buoc 3: Validate — nam xuat ban hop le
+        if (!ValidationUtils.isValidYear(yearStr)) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Nam xuat ban khong hop le!");
+            return;
+        }
+
+        // Buoc 4: Validate — kiem tra trung ma (bo qua chinh no khi cap nhat)
+        if (ValidationUtils.isCodeDuplicated(code, controller, selectedIndex)) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Ma sach da ton tai!");
+            txtBookCode.requestFocus();
+            return;
+        }
+
+        // Buoc 5: Tao Book va uy quyen cho Controller
+        int year = Integer.parseInt(yearStr.trim());
+        boolean forRent = checkForRent.isSelected();
+        Book b = new Book(code, name, author, publisher, year, forRent);
+
+        if (selectedIndex >= 0) {
+            controller.updateBook(selectedIndex, b);
+            javax.swing.JOptionPane.showMessageDialog(this, "Cap nhat thanh cong!");
+        } else {
+            controller.addBook(b);
+            javax.swing.JOptionPane.showMessageDialog(this, "Them moi thanh cong!");
+        }
+
+        // Buoc 6: Lam moi danh sach hien thi
+        refreshList();
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewActionPerformed
+        clearForm();
+    }//GEN-LAST:event_btnNewActionPerformed
+
+    private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
+        int index = listBooks.getSelectedIndex();
+        if (index >= 0) {
+            controller.removeBook(index);
+            refreshList();
+            if (!bookListModel.isEmpty()) {
+                listBooks.setSelectedIndex(0);
+            } else {
+                clearForm();
+            }
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this, "Chon sach de xoa!");
+        }
+    }//GEN-LAST:event_btnRemoveActionPerformed
+
+    // =========================================================
+    // CAC PHUONG THUC PRIVATE HO TRO (Helper Methods)
+    // =========================================================
+
+    /**
+     * Lam moi danh sach JList tu du lieu trong Controller.
+     * View tu quan ly viec dong bo — Controller khong biet JList.
+     */
+    private void refreshList() {
+        bookListModel.clear();
+        for (Book b : controller.getList()) {
+            bookListModel.addElement(b);
+        }
+    }
+
+    /**
+     * Hien thi thong tin mot cuon sach len cac o nhap lieu ben phai.
+     */
+    private void displayBook(Book b) {
+        if (b == null) return;
+        txtBookCode.setText(b.getCode());
+        txtBookName.setText(b.getName());
+        txtAuthor.setText(b.getAuthor());
+        txtPublisher.setText(b.getPublisher());
+        cbxPublishYear.setSelectedItem(b.getYear() + "\t");
+        checkForRent.setSelected(b.isForRent());
+    }
+
+    /**
+     * Xoa trang form nhap lieu va bo chon tren danh sach.
+     */
+    private void clearForm() {
         txtBookCode.setText("");
         txtBookName.setText("");
         txtAuthor.setText("");
         txtPublisher.setText("");
         cbxPublishYear.setSelectedIndex(0);
         checkForRent.setSelected(false);
-        listBooks.clearSelection(); // Bỏ chọn trong danh sách để chuẩn bị Add mới
+        listBooks.clearSelection();
         txtBookCode.requestFocus();
-    }//GEN-LAST:event_btnNewActionPerformed
-
-    private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
-        int index = listBooks.getSelectedIndex();
-        if (index >= 0) {
-            control.removeBook(index); // Xóa trong Controller
-            control.loadDataToModel(bookListModel); // Cập nhật lại JList
-
-            // Hiển thị cuốn sách đầu tiên sau khi xóa
-            if (!bookListModel.isEmpty()) {
-                listBooks.setSelectedIndex(0);
-            } else {
-                btnNewActionPerformed(null); // Nếu xóa hết thì xóa trắng form
-            }
-        } else {
-            javax.swing.JOptionPane.showMessageDialog(this, "Chọn sách để xóa!");
-        }
-    }//GEN-LAST:event_btnRemoveActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        try {
-            // Thiết lập giao diện giống hệ điều hành đang dùng (Windows/MacOS)
-            javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        /* Hiển thị form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                // Khởi tạo và hiển thị
-                new BookGUI().setVisible(true);
-            }
-        });
     }
+
+    // Diem khoi chay da duoc chuyen sang com.bach.main.Main
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnExit;

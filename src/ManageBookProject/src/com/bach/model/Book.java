@@ -79,7 +79,7 @@ public class Book {
 
     @Override
     public String toString() {
-        return name;    // Để khi hiện lên JList nó sẽ hiện tên sách
+        return "[" + code + "] " + name;
     }
     
     
