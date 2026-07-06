@@ -1,6 +1,6 @@
-package com.bach.utils;
+package utils;
 
-import com.bach.controller.BookController;
+import controller.BookController;
 
 /**
  * Lớp tiện ích chứa các phương thức kiểm tra dữ liệu đầu vào.

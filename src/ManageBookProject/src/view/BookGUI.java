@@ -3,18 +3,20 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.bach.view;
+package view;
 
-import com.bach.controller.BookController;
-import com.bach.model.Book;
-import com.bach.utils.ValidationUtils;
+import controller.BookController;
+import model.Book;
+import model.BookObserver;
+import utils.ValidationUtils;
+import java.util.List;
 import javax.swing.DefaultListModel;
 
 /**
  *
  * @author Admin
  */
-public class BookGUI extends javax.swing.JFrame {
+public class BookGUI extends javax.swing.JFrame implements BookObserver {
 
     /**
      * Creates new form BookGUI
@@ -30,17 +32,28 @@ public class BookGUI extends javax.swing.JFrame {
         this.controller.getSampleData();
         initComponents();
         listBooks.setModel(bookListModel);
-        refreshList();
+
+        // BookGUI đăng ký làm Observer để nhận notify khi danh sách Sách thay đổi
+        this.controller.addObserver(this);
+
+        // Hien thi du lieu lan dau
+        onBookListChanged(this.controller.getList());
     }
 
     /**
-     * Constructor chinh — nhan controller duoc tiem tu Main.java (Dependency Injection).
+     * Constructor chinh — nhan controller duoc tiem tu Main.java (Dependency
+     * Injection).
      */
     public BookGUI(BookController controller) {
         this.controller = controller;
         initComponents();
         listBooks.setModel(bookListModel);
-        refreshList();
+
+        // BookGUI dang ky lam Observer de nhan notify tu Model
+        this.controller.addObserver(this);
+
+        // Hien thi du lieu lan dau
+        onBookListChanged(this.controller.getList());
     }
 
     /**
@@ -333,9 +346,7 @@ public class BookGUI extends javax.swing.JFrame {
             controller.addBook(b);
             javax.swing.JOptionPane.showMessageDialog(this, "Them moi thanh cong!");
         }
-
-        // Buoc 6: Lam moi danh sach hien thi
-        refreshList();
+        // Sau khi add/update, Model sẽ notify BookGUI thông qua onBookListChanged().
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewActionPerformed
@@ -344,9 +355,10 @@ public class BookGUI extends javax.swing.JFrame {
 
     private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
         int index = listBooks.getSelectedIndex();
+
         if (index >= 0) {
             controller.removeBook(index);
-            refreshList();
+            // Model sẽ notify BookGUI thông qua onBookListChanged().
             if (!bookListModel.isEmpty()) {
                 listBooks.setSelectedIndex(0);
             } else {
@@ -360,14 +372,15 @@ public class BookGUI extends javax.swing.JFrame {
     // =========================================================
     // CAC PHUONG THUC PRIVATE HO TRO (Helper Methods)
     // =========================================================
-
     /**
-     * Lam moi danh sach JList tu du lieu trong Controller.
-     * View tu quan ly viec dong bo — Controller khong biet JList.
+     * Lam moi danh sach JList tu du lieu trong Controller. View tu quan ly viec
+     * dong bo — Controller khong biet JList.
      */
-    private void refreshList() {
+    @Override
+    public void onBookListChanged(List<Book> books) {
         bookListModel.clear();
-        for (Book b : controller.getList()) {
+
+        for (Book b : books) {
             bookListModel.addElement(b);
         }
     }
@@ -376,7 +389,9 @@ public class BookGUI extends javax.swing.JFrame {
      * Hien thi thong tin mot cuon sach len cac o nhap lieu ben phai.
      */
     private void displayBook(Book b) {
-        if (b == null) return;
+        if (b == null) {
+            return;
+        }
         txtBookCode.setText(b.getCode());
         txtBookName.setText(b.getName());
         txtAuthor.setText(b.getAuthor());
@@ -426,4 +441,5 @@ public class BookGUI extends javax.swing.JFrame {
     private javax.swing.JTextField txtBookName;
     private javax.swing.JTextField txtPublisher;
     // End of variables declaration//GEN-END:variables
+
 }

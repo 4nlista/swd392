@@ -1,7 +1,7 @@
-package com.bach.main;
+package main;
 
-import com.bach.controller.BookController;
-import com.bach.view.BookGUI;
+import controller.BookController;
+import view.BookGUI;
 
 /**
  * Diem khoi chay cua ung dung (Bootstrap Layer).
