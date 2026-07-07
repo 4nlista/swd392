@@ -358,6 +358,7 @@ public class BookGUI extends javax.swing.JFrame implements BookObserver {
 
         if (index >= 0) {
             controller.removeBook(index);
+            javax.swing.JOptionPane.showMessageDialog(this, "Xoa sach thanh cong!");
             // Model sẽ notify BookGUI thông qua onBookListChanged().
             if (!bookListModel.isEmpty()) {
                 listBooks.setSelectedIndex(0);
