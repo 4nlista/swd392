@@ -1,5 +1,5 @@
 Họ và tên: Nguyễn Bảo An
-Mã sinh viên: HE182167
+- Mã sinh viên: HE182167
 
 Môn học: SWD392 - Software Architecture and Design
 
