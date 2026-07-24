@@ -1,6 +1,5 @@
 package utils;
 
-import controller.BookController;
 
 /**
  * Lớp tiện ích chứa các phương thức kiểm tra dữ liệu đầu vào.
@@ -50,15 +49,5 @@ public class ValidationUtils {
      * @param editingIndex Index của cuốn sách đang được sửa (-1 nếu thêm mới)
      * @return true nếu mã đã tồn tại (bị trùng), false nếu hợp lệ
      */
-    public static boolean isCodeDuplicated(String code, BookController ctrl, int editingIndex) {
-        for (int i = 0; i < ctrl.getList().size(); i++) {
-            if (i == editingIndex) {
-                continue; // Bỏ qua chính cuốn sách đang được sửa
-            }
-            if (ctrl.getList().get(i).getCode().equalsIgnoreCase(code)) {
-                return true;
-            }
-        }
-        return false;
-    }
+
 }

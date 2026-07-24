@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package model;
-
+import observer.BookObserver;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

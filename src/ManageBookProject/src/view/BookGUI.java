@@ -7,7 +7,7 @@ package view;
 
 import controller.BookController;
 import model.Book;
-import model.BookObserver;
+import observer.BookObserver;
 import utils.ValidationUtils;
 import java.util.List;
 import javax.swing.DefaultListModel;
@@ -16,7 +16,7 @@ import javax.swing.DefaultListModel;
  *
  * @author Admin
  */
-public class BookGUI extends javax.swing.JFrame implements BookObserver {
+public class BookGUI extends javax.swing.JFrame implements BookObserver { // BookGUI chính là Concrete Observer.
 
     /**
      * Creates new form BookGUI
@@ -28,18 +28,8 @@ public class BookGUI extends javax.swing.JFrame implements BookObserver {
      * Constructor mac dinh — giu de NetBeans Form Designer hoat dong.
      */
     public BookGUI() {
-        this.controller = new BookController();
-        this.controller.getSampleData();
         initComponents();
-        listBooks.setModel(bookListModel);
-
-        // BookGUI đăng ký làm Observer để nhận notify khi danh sách Sách thay đổi
-        this.controller.addObserver(this);
-
-        // Hien thi du lieu lan dau
-        onBookListChanged(this.controller.getList());
     }
-
     /**
      * Constructor chinh — nhan controller duoc tiem tu Main.java (Dependency
      * Injection).
@@ -49,10 +39,6 @@ public class BookGUI extends javax.swing.JFrame implements BookObserver {
         initComponents();
         listBooks.setModel(bookListModel);
 
-        // BookGUI dang ky lam Observer de nhan notify tu Model
-        this.controller.addObserver(this);
-
-        // Hien thi du lieu lan dau
         onBookListChanged(this.controller.getList());
     }
 
@@ -328,7 +314,7 @@ public class BookGUI extends javax.swing.JFrame implements BookObserver {
         }
 
         // Buoc 4: Validate — kiem tra trung ma (bo qua chinh no khi cap nhat)
-        if (ValidationUtils.isCodeDuplicated(code, controller, selectedIndex)) {
+        if (controller.isCodeDuplicated(code, controller, selectedIndex)) {
             javax.swing.JOptionPane.showMessageDialog(this, "Ma sach da ton tai!");
             txtBookCode.requestFocus();
             return;

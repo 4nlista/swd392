@@ -18,7 +18,6 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            // Thiet lap giao dien theo he dieu hanh dang dung
             javax.swing.UIManager.setLookAndFeel(
                 javax.swing.UIManager.getSystemLookAndFeelClassName()
             );
@@ -27,16 +26,19 @@ public class Main {
         }
 
         java.awt.EventQueue.invokeLater(() -> {
-            // Buoc 1: Khoi tao Controller
+            // B1: Khởi tạo Controller
             BookController controller = new BookController();
 
-            // Buoc 2: Nap du lieu mau (data seeding nam o day, khong phai trong View)
+            // B2: Nạp dữ liệu mẫu
             controller.getSampleData();
 
-            // Buoc 3: Tao View va tiem Controller vao
+            // B3: Tạo View
             BookGUI view = new BookGUI(controller);
 
-            // Buoc 4: Hien thi
+            // B4: Đăng ký Observer  <-- THÊM DÒNG NÀY
+            controller.addObserver(view);
+
+            // B5: Hiển thị
             view.setVisible(true);
         });
     }

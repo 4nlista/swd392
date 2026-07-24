@@ -7,7 +7,7 @@ package controller;
 
 import model.Book;
 import model.BookListModel;
-import model.BookObserver;
+import observer.BookObserver;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,5 +69,17 @@ public class BookController {
 
     public List<Book> getList() {
         return bookListModel.getBooks();
+    }
+
+    public static boolean isCodeDuplicated(String code, BookController ctrl, int editingIndex) {
+        for (int i = 0; i < ctrl.getList().size(); i++) {
+            if (i == editingIndex) {
+                continue; // Bỏ qua chính cuốn sách đang được sửa
+            }
+            if (ctrl.getList().get(i).getCode().equalsIgnoreCase(code)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
